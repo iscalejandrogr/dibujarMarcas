@@ -1,0 +1,113 @@
+<!DOCTYPE html> 
+<html>
+<head>
+<meta charset="utf-8">
+<title>Georeferencia 1.0</title>
+<link rel="stylesheet" type="text/css" href="css/jquery.mobile-1.4.5.min.css" />
+<link rel="stylesheet" type="text/css" href="css/jquery-ui.css" />
+<script src="cordova.js"></script>
+<script src="js/jquery.min.js" type="text/javascript"></script>
+<script src="js/jquery-ui.js" type="text/javascript"></script>
+<script src="js/jquery.mobile-1.4.5.min.js" type="text/javascript"></script>
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+<script type="text/javascript">
+//$(document).on("pageinit","#paginaMapa", function(e, data){
+ $(document).ready(function (){
+ var mapa;
+ var miOptions;
+ var defaultPos;
+ var marca;
+ var infoVentanta;
+ 
+   document.addEventListener("deviceready", onDeviceReady, false);
+    function onDeviceReady(){
+	defaultPos=new  google.maps.LatLng(19.463948, -97.686259);
+	 miOptions={
+	    zoom:16,
+	    center:defaultPos,
+	    disableDefaultUI:true,
+	    mapTypeId:google.maps.MapTypeId.ROADMAP};
+		  
+	  map= new google.maps.Map(document.getElementById("map-canvas"),miOptions);	   	  
+	
+	if(navigator.geolocation){
+	
+	  function exito(posic){
+
+	      marca=new google.maps.Marker({
+		  position:new google.maps.LatLng(posic.coords.latitude, posic.coords.longitude),
+		  map:map,
+		  title:"Usted esta ubicado aqui",
+		  animation:google.maps.Animation.DROP
+	      });
+	  
+	      infoVentanta=new google.maps.InfoWindow({
+		  position:new google.maps.LatLng(posic.coords.latitude, posic.coords.longitude),
+		  content:"<p>Tu Ubicación es: </p>"+new google.maps.LatLng(posic.coords.latitude, posic.coords.longitude)
+	      });
+	      
+	      google.maps.event.addListener(marca, "click", function(){infoVentanta.open(map,this);});
+	  
+	      var arregloCords=["19.459352, -97.688981","19.464774, -97.687265"];
+	      for(i=0;i<=1; i++){	  
+		  var lat=arregloCords[i].split(",");
+		  dibujarMarcas(defaultPos, lat[0], lat[1]);	    
+	      }
+	  }
+	
+	  function falla(error){
+	      alert("Error en el servicio Geolocalizador");
+	      dibujarMarcas(defaultPos);
+	  }
+	  
+	  var opciones={maximumAge:500000,enableHighAccuracy:true,timeout:5000};
+	  navigator.geolocation.getCurrentPosition(exito, falla, opciones);
+	  }else{
+	    dibujarMarcas(defaultPos);
+	  }
+	}
+
+
+    function dibujarMarcas(defaultPos, lat, lng){
+    var latlng=new google.maps.LatLng(lat,lng);
+    //alert("corenada principal: "+defaultPos+" cordenada arr: "+ lat+","+lng+ " Cordenada Conv: "+latlng);	  	 	  
+	  var marca2=new google.maps.Marker({
+	      position:latlng,
+	      map:map,
+	      title:"Mi posición",
+	      animation:google.maps.Animation.DROP
+	  });
+	  
+	  var infoVentanta2=new google.maps.InfoWindow({
+	    position:latlng,
+	    //content:"<p>Tu posicion actual es: </p>"+latlng
+	    content:'<div style="width:200px; height:160px;"><div style="text-align: center; color:#5c041b; font-weight:bolder; font-size:12px; font-family:arial;">' + latlng + '</div><img src="images/ajax-loader.gif" width="100" heigth="60" /><div style="text-align:center; color: #2e20b8; font-size:12px; font-family:arial; width:200px; text-align:center;">' + latlng + '</div><div>Tel: ' + latlng + '</div><div>Email:' + latlng + '</div>'
+	  });
+	  google.maps.event.addListener(marca2, "click", function(){infoVentanta2.open(map,this);});
+    }    
+ });
+</script>
+<style >
+#map-canvas{
+  height:100%;
+  width:100%;
+  padding:0px;
+  position: absolute;
+  top:40px;
+  right:0px;
+  bottom:0px;
+  left:0px;
+}
+</style>
+</head>
+<body>
+  <div data-role="page" id="paginaMapa" data-url="map-page">
+      <div data-role="header">
+	<h1>Tu posición actual</h1>
+      </div>
+      <div data-role="content">      
+	  <div id="map-canvas"></div>
+      </div>
+  </div>
+</body>
+</html>
